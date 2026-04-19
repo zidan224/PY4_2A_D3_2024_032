@@ -1,6 +1,36 @@
-# logbook_app_032
+# Logbook App 032
 
-A new Flutter project.
+Aplikasi logbook cerdas untuk patrol dengan fitur vision AI.
+
+## Instalasi
+
+### Persyaratan Sistem
+- Flutter SDK (versi terbaru)
+- Dart SDK
+- Android Studio atau Visual Studio Code
+- Emulator Android atau perangkat fisik
+- Git
+
+### Langkah Instalasi
+1. **Clone repository ini:**
+   ```
+   git clone https://github.com/zidan224/PY4_2A_D3_2024_032.git
+   cd logbook_app_032
+   ```
+
+2. **Install dependencies:**
+   ```
+   flutter pub get
+   ```
+
+3. **Jalankan aplikasi:**
+   ```
+   flutter run
+   ```
+
+### Konfigurasi Tambahan
+- Pastikan emulator Android sudah terpasang atau perangkat fisik terhubung.
+- Untuk fitur vision, pastikan kamera perangkat dapat diakses.
 
 ## Getting Started
 

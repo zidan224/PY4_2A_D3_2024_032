@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:logbook_app_032/services/access_control_service.dart';
 import 'package:logbook_app_032/features/logbook/log_editor_page.dart';
+import 'package:logbook_app_032/vision/vision_view.dart';
 import 'log_controller.dart';
 import 'models/log_model.dart';
 
@@ -55,6 +56,13 @@ class _LogViewState extends State<LogView> {
     ).then((_) => _controller.loadLogs());
   }
 
+  void _goToVision() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const VisionView()),
+    );
+  }
+
   Color _getCategoryColor(String desc) {
     if (desc.startsWith("[Urgent]")) return Colors.redAccent;
     if (desc.startsWith("[Kerja]")) return Colors.blueAccent;
@@ -84,12 +92,17 @@ class _LogViewState extends State<LogView> {
 
   @override
   Widget build(BuildContext context) {
+    final canCreate = AccessControlService.canPerform(
+      widget.role,
+      AccessControlService.actionCreate,
+    );
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       body: Column(
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [Color(0xFF1E3C72), Color(0xFF2A5298)],
@@ -206,20 +219,38 @@ class _LogViewState extends State<LogView> {
           ),
         ],
       ),
-      floatingActionButton:
-          AccessControlService.canPerform(
-            widget.role,
-            AccessControlService.actionCreate,
-          )
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 30.0),
-              child: FloatingActionButton(
+
+      // ─── FAB: Kamera + Tambah berdampingan ───────────────────────────────
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Tombol Kamera
+            FloatingActionButton(
+              heroTag: 'fab_camera',
+              backgroundColor: const Color(0xFF2A5298),
+              onPressed: _goToVision,
+              tooltip: 'Smart Patrol Vision',
+              child: const Icon(Icons.camera_alt, color: Colors.white),
+            ),
+
+            // Jarak antar tombol
+            if (canCreate) const SizedBox(width: 12),
+
+            // Tombol Tambah Log — hanya muncul jika punya izin
+            if (canCreate)
+              FloatingActionButton(
+                heroTag: 'fab_add',
                 backgroundColor: const Color(0xFF1E3C72),
                 onPressed: () => _goToEditor(),
+                tooltip: 'Tambah Catatan',
                 child: const Icon(Icons.add, color: Colors.white),
               ),
-            )
-          : null,
+          ],
+        ),
+      ),
     );
   }
 
@@ -272,10 +303,8 @@ class _LogViewState extends State<LogView> {
       margin: const EdgeInsets.only(bottom: 12),
       child: IntrinsicHeight(
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment
-              .center, // Memastikan semua anak Row rata tengah vertikal
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Indikator Warna di Samping
             Container(
               width: 5,
               decoration: BoxDecoration(
@@ -286,8 +315,6 @@ class _LogViewState extends State<LogView> {
                 ),
               ),
             ),
-
-            // Konten Utama (Title & Subtitle)
             Expanded(
               child: ListTile(
                 contentPadding: const EdgeInsets.symmetric(
@@ -295,10 +322,7 @@ class _LogViewState extends State<LogView> {
                   vertical: 8,
                 ),
                 leading: Icon(
-                  // Jika id null, tampilkan awan "off"
                   log.id == null ? Icons.cloud_off_outlined : Icons.cloud_done,
-
-                  // Jika id null, warnanya Abu-abu. Jika ada id, warnanya Hijau.
                   color: log.id == null ? Colors.grey : Colors.green,
                   size: 28,
                 ),
@@ -311,7 +335,7 @@ class _LogViewState extends State<LogView> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _buildStatusBadge(log), // Helper untuk badge Public/Private
+                    _buildStatusBadge(log),
                   ],
                 ),
                 subtitle: Column(
@@ -330,8 +354,6 @@ class _LogViewState extends State<LogView> {
                 ),
               ),
             ),
-
-            // Tombol Edit yang dipisah dari ListTile agar bisa rata tengah sempurna
             if (AccessControlService.canPerform(
               widget.role,
               AccessControlService.actionUpdate,
@@ -340,7 +362,6 @@ class _LogViewState extends State<LogView> {
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: Center(
-                  // Membungkus dengan Center di dalam Row yang sudah IntrinsicHeight
                   child: IconButton(
                     icon: const Icon(
                       Icons.edit_note,
@@ -357,7 +378,6 @@ class _LogViewState extends State<LogView> {
     );
   }
 
-  // Helper agar kode lebih rapi
   Widget _buildStatusBadge(LogModel log) {
     final isPublic = log.isPublic ?? true;
     return Container(

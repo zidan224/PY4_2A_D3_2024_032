@@ -1,8 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
     <!-- Required permissions for network operations and offline sync -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature 
+        android:name="android.hardware.camera" 
+        android:required="false"/>
     <application
         android:label="logbook_app_032"
         android:name="${applicationName}"
